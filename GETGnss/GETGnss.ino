@@ -3,6 +3,8 @@
 #include <BLEClient.h> 
 #include <Arduino.h> 
 
+//https://qiita.com/DeviceManager/items/440d3f045429a8edef51#%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D
+
 // Manufacturer Dataのマッチングするデータ 
 const uint8_t targetManufacturerData[] = {0xFF, 0xFF, 0x01, 0x02, 0x03, 0x04}; 
 const size_t manufacturerDataLength = sizeof(targetManufacturerData); 
