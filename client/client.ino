@@ -199,6 +199,8 @@ void bleDataTask(void *pvParameters) {
           BLEData data;
           data.lat = tlat / 1000000.0;
           data.lon = tlon / 1000000.0;
+          Serial.printf("lat: %d, lon: %d\n", tlat, tlon);
+
 
           // BLEデータをキューに追加
           xSemaphoreTake(bleDataMutex, portMAX_DELAY);
