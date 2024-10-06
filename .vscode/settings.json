@@ -1,0 +1,6 @@
+{
+    "idf.portWin": "COM6",
+    "idf.adapterTargetName": "esp32",
+    "idf.flashType": "JTAG",
+    "gitdoc.enabled": true
+}
