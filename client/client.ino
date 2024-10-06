@@ -181,8 +181,8 @@ void bleDataTask(void *pvParameters) {
  
           if (manufacturerData.length() == manufacturerDataLength) { 
             bool match = true; 
-            for (int i = 0; i < manufacturerDataLength; i++) { 
-              if ((uint8_t)manufacturerData[i] != targetManufacturerData[i]) { 
+            for (int j = 0; j < manufacturerDataLength; j++) { 
+              if ((uint8_t)manufacturerData[j] != targetManufacturerData[j]) { 
                 match = false; 
                 break; 
               } 
