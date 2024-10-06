@@ -185,7 +185,8 @@ void bleDataTask(void *pvParameters) {
           }
           Serial.println();
 
-          if (manufacturerData.length() == manufacturerDataLength) {
+          // Manufacturer Dataのマッチング
+          if (manufacturerData.length() >= manufacturerDataLength) {
             bool match = true;
             for (int j = 0; j < manufacturerDataLength; j++) {
               if ((uint8_t)manufacturerData[j] != targetManufacturerData[j]) {
