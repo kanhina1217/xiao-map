@@ -211,7 +211,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             } 
 
             record.fillSprite(TFT_WHITE);
-            if ((120 <= x && x <= 136) && (120 <= y && y <= 136)) 
+            if ((120 <= x && x <= 136) && (120 <= y && y <= 136)) {
               File file = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
               if (file) { 
                 record.drawPng(&file, sx, sy); // SDカードからPNG画像を描画 
