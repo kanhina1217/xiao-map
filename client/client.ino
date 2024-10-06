@@ -52,7 +52,7 @@ const size_t manufacturerDataLength = sizeof(targetManufacturerData);
 void bleDataTask(void *pvParameters) {
   for (;;) {
     pBLEScan = BLEDevice::getScan();  // BLEスキャン開始
-    pBLEScan->start(scanTime, false);
+    BLEScanResults results = pBLEScan->start(scanTime, false);
 
     // デバイスからのデータ取得
     if (BLEScanResults results = pBLEScan->getResults()) {
