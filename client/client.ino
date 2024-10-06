@@ -198,14 +198,14 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
           unsigned long tlat = strtoul(Blat.c_str(), nullptr, 16); 
           unsigned long tlon = strtoul(Blon.c_str(), nullptr, 16); 
  
-          float la = tlat / 1000000.0; 
-          float ln = tlon / 1000000.0; 
-          Serial.printf("lat: %.6f, lon: %.6f\n", la, ln); 
+          float lat = tlat / 1000000.0; 
+          float lon = tlon / 1000000.0; 
+          Serial.printf("lat: %.6f, lon: %.6f\n", lat, lon); 
 
           // BLEデータをキューに追加
           BLEData data;
-          data.la = lat;
-          data.ln = lon;
+          data.lat = lat;
+          data.lon = lon;
 
           xSemaphoreTake(bleDataMutex, portMAX_DELAY);
           bleDataQueue.push(data);
