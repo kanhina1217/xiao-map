@@ -200,6 +200,12 @@ void bleDataTask(void *pvParameters) {
               uint8_t* payload = advertisedDevice.getPayload();
               int payloadLength = advertisedDevice.getPayloadLength();
 
+              Serial.print("Data after FFFF01020304: ");
+              for (int j = manufacturerDataLength; j < payloadLength; j++) {
+                Serial.printf("%02X ", payload[j]);
+              }
+              Serial.println();
+
               String Blat = "";
               String Blon = "";
 
