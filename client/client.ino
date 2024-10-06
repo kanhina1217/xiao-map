@@ -268,6 +268,8 @@ void setup() {
 
 
  
-void loop() { 
+void loop() {
+  BLEScan *pBLEScan = BLEDevice::getScan();
+  pBLEScan->start(scanTime, false);
   delay(10000); 
 }
