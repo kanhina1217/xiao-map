@@ -485,16 +485,16 @@ void displayTask(void *pvParameters) {
 void batteryTask(void *pvParameters) {
   for (;;) {
     int mvolts = 0;
-    for(int i=0; i<NUM_ADC_SAMPLE; i++){
+    for(int i=0; i<20 i++){
       mvolts += analogReadMilliVolts(D0);
     }
-    mvolts /= NUM_ADC_SAMPLE;
+    mvolts /= 20;
     int level = (mvolts - 1480) * 100 / 2050; // 1480 ~ 2050
     level = (level<0) ? 0 : ((level>100) ? 100 : level); 
     return level;
 
     int fillper = 6 * (level / 100);
-    display.drowRoundRect(180, 180, 16, 8, 2, TFT_BLACK);
+    display.drawRoundRect(180, 180, 16, 8, 2, TFT_BLACK);
     display.fillRoundRect(181, 181, 14, fillper, 2, TFT_BLUE);
   }
 }
