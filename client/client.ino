@@ -5,6 +5,13 @@
 #include <queue>
 #include <SD.h>
 
+#include <TFT_eSPI.h>
+TFT_eSPI tft = TFT_eSPI();
+ 
+// display変数 
+#define LGFX_USE_V1 
+#include <LovyanGFX.hpp> 
+
 // BLEから取得したデータ
 struct BLEData {
   float lat;  // 緯度
@@ -320,13 +327,6 @@ void displayTask(void *pvParameters) {
     vTaskDelay(100 / portTICK_PERIOD_MS);  // 適宜ディレイ
   }
 }
-
-#include <TFT_eSPI.h>
-TFT_eSPI tft = TFT_eSPI();
- 
-// display変数 
-#define LGFX_USE_V1 
-#include <LovyanGFX.hpp> 
  
 struct Touch_XiaoRound : public lgfx::v1::ITouch { 
   Touch_XiaoRound() { 
