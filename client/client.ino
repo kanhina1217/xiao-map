@@ -165,19 +165,76 @@ const uint8_t targetManufacturerData[] = {0xFF, 0xFF, 0x01, 0x02, 0x03, 0x04};
 const size_t manufacturerDataLength = sizeof(targetManufacturerData); 
 
 // BLEデータ取得タスク
-void bleDataTask(void *pvParameters) { 
-  for (;;) { 
-    pBLEScan = BLEDevice::getScan();  // BLEスキャン開始 
-    BLEScanResults results = pBLEScan->start(scanTime, false); // スキャン結果を取得
+void bleDataTask(void *pvParameters) {
+  for (;;) {
+    pBLEScan = BLEDevice::getScan();  // BLEスキャン開始
+    BLEScanResults results = pBLEScan->start(scanTime, false);
 
     // スキャン結果が1つ以上あるか確認
     if (results.getCount() > 0) {
-        // スキャン結果がある場合の処理
+      // スキャン結果がある場合の処理
       for (int i = 0; i < results.getCount(); i++) {
-        BLEAdvertisedDevice device = results.getDevice(i);
         BLEAdvertisedDevice advertisedDevice = results.getDevice(i);
         if (advertisedDevice.haveManufacturerData()) {
-          std::string manufacturerData = advertisedDevice.getManufacturerData(); 
+          std::string manufacturerData = advertisedDevice.getManufacturerData();
+
+          // 生データログ
+          Serial.print("Raw Data: ");
+          for (int j = 0; j < manufacturerData.length(); j++) {
+            Serial.printf("%02X ", (uint8_t)manufacturerData[j]);
+          }
+          Serial.println();
+
+          if (manufacturerData.length() == manufacturerDataLength) {
+            bool match = true;
+            for (int j = 0; j < manufacturerDataLength; j++) {
+              if ((uint8_t)manufacturerData[j] != targetManufacturerData[j]) {
+                match = false;
+                break;
+              }
+            }
+
+            if (match) {
+              Serial.println("Target Manufacturer Data found!");
+              uint8_t* payload = advertisedDevice.getPayload();
+              int payloadLength = advertisedDevice.getPayloadLength();
+
+              String Blat = "";
+              String Blon = "";
+
+              for (int j = 0; j < payloadLength; j++) {
+                if (j >= 13 && j <= 16) {
+                  Blat += String(payload[j], HEX);
+                }
+                if (j >= 17 && j <= 20) {
+                  Blon += String(payload[j], HEX);
+                }
+              }
+
+              unsigned long tlat = strtoul(Blat.c_str(), nullptr, 16);
+              unsigned long tlon = strtoul(Blon.c_str(), nullptr, 16);
+
+              float la = tlat / 1000000.0;
+              float ln = tlon / 1000000.0;
+              Serial.printf("lat: %.6f, lon: %.6f\n", la, ln);
+
+              // BLEデータをキューに追加
+              BLEData data;
+              data.lat = la;
+              data.lon = ln;
+
+              xSemaphoreTake(bleDataMutex, portMAX_DELAY);
+              bleDataQueue.push(data);
+              xSemaphoreGive(bleDataMutex);
+            }
+          }
+        }
+      }
+    }
+    pBLEScan->clearResults(); // メモリをクリア
+    vTaskDelay(1000 / portTICK_PERIOD_MS);  // 1秒ごとにスキャン
+  }
+}
  
           if (manufacturerData.length() == manufacturerDataLength) { 
             bool match = true; 
