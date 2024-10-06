@@ -2,7 +2,7 @@
 #include <BLEUtils.h> 
 #include <BLEClient.h> 
 #include <SD.h>
-#include <cmath>
+
 #include <TFT_eSPI.h>
 TFT_eSPI tft = TFT_eSPI();
  
@@ -125,81 +125,23 @@ void write() {
   display.waitDisplay(); 
 } 
  
+// Manufacturer Dataのマッチングするデータ 
 const uint8_t targetManufacturerData[] = {0xFF, 0xFF, 0x01, 0x02, 0x03, 0x04}; 
 const size_t manufacturerDataLength = sizeof(targetManufacturerData); 
-const int scanTime = 5; 
+ 
+// BLEスキャンの時間 
+const int scanTime = 5; // スキャン時間（秒） 
+ 
+// 画像タイルの位置を記録する変数 
 int lastTx = -1; 
 int lastTy = -1; 
-
-void getLocationFromBLE(const uint8_t* payload, int payloadLength, float &la, float &ln) {
-  String Blat = ""; 
-  String Blon = ""; 
-
-  for (int i = 0; i < payloadLength; i++) { 
-    if (i >= 13 && i <= 16) { 
-      Blat += String(payload[i], HEX); 
-    } 
-    if (i >= 17 && i <= 20) { 
-      Blon += String(payload[i], HEX); 
-    } 
-  } 
-
-  unsigned long tlat = strtoul(Blat.c_str(), nullptr, 16); 
-  unsigned long tlon = strtoul(Blon.c_str(), nullptr, 16); 
-
-  la = tlat / 1000000.0; 
-  ln = tlon / 1000000.0; 
-  Serial.printf("lat: %.6f, lon: %.6f\n", la, ln); 
-}
-
-void displayTile(float la, float ln) {
-  int z = 16; 
-  double L = 85.05112878; 
-  double px = int(pow(2.0, z + 7.0) * ((ln / 180.0) + 1.0)); 
-  double py = int(pow(2.0, z + 7.0) * (-1 * atanh(sin(PI * la / 180.0)) + atanh(sin(PI * L / 180.0))) / PI); 
-  int tx = px / 256; 
-  int ty = py / 256; 
-  Serial.printf("tx: %d, ty: %d\n", tx, ty); 
-
-  int x = int(px) % 256; 
-  int y = int(py) % 256; 
-
-  if (tx != lastTx || ty != lastTy) { 
-    lastTx = tx; 
-    lastTy = ty; 
-
-    String filename[9]; 
-    filename[0] = String("/images/std/" + String(z) + "/" + String(tx - 1) + "/" + String(ty - 1) + ".png"); 
-    filename[1] = String("/images/std/" + String(z) + "/" + String(tx) + "/" + String(ty - 1) + ".png"); 
-    filename[2] = String("/images/std/" + String(z) + "/" + String(tx + 1) + "/" + String(ty - 1) + ".png"); 
-    filename[3] = String("/images/std/" + String(z) + "/" + String(tx - 1) + "/" + String(ty) + ".png"); 
-    filename[4] = String("/images/std/" + String(z) + "/" + String(tx) + "/" + String(ty) + ".png"); 
-    filename[5] = String("/images/std/" + String(z) + "/" + String(tx + 1) + "/" + String(ty) + ".png"); 
-    filename[6] = String("/images/std/" + String(z) + "/" + String(tx - 1) + "/" + String(ty + 1) + ".png"); 
-    filename[7] = String("/images/std/" + String(z) + "/" + String(tx) + "/" + String(ty + 1) + ".png"); 
-    filename[8] = String("/images/std/" + String(z) + "/" + String(tx + 1) + "/" + String(ty + 1) + ".png"); 
-
-    for (int i = 0; i < 9; i++) { 
-      Serial.printf("%s\n", filename[i].c_str()); 
-    } 
-
-    record.fillSprite(TFT_WHITE); 
-    File file = SD.open(filename[4].c_str()); 
-    if (file) { 
-      record.drawPng(&file, 0, 0); 
-      file.close(); 
-      write(); 
-    } else { 
-      Serial.println("File not found!"); 
-    } 
-  } 
-}
-
+ 
+// BLEコールバッククラス 
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks { 
   void onResult(BLEAdvertisedDevice advertisedDevice) { 
     if (advertisedDevice.haveManufacturerData()) { 
       std::string manufacturerData = advertisedDevice.getManufacturerData(); 
-
+ 
       if (manufacturerData.length() == manufacturerDataLength) { 
         bool match = true; 
         for (int i = 0; i < manufacturerDataLength; i++) { 
@@ -208,21 +150,78 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             break; 
           } 
         } 
-
+ 
         if (match) { 
           Serial.println("Target Manufacturer Data found!"); 
           uint8_t* payload = advertisedDevice.getPayload(); 
           int payloadLength = advertisedDevice.getPayloadLength(); 
-
-          float la, ln;
-          getLocationFromBLE(payload, payloadLength, la, ln);
-          displayTile(la, ln);
+ 
+          String Blat = ""; 
+          String Blon = ""; 
+ 
+          for (int i = 0; i < payloadLength; i++) { 
+            if (i >= 13 && i <= 16) { 
+              Blat += String(payload[i], HEX); 
+            } 
+            if (i >= 17 && i <= 20) { 
+              Blon += String(payload[i], HEX); 
+            } 
+          } 
+ 
+          unsigned long tlat = strtoul(Blat.c_str(), nullptr, 16); 
+          unsigned long tlon = strtoul(Blon.c_str(), nullptr, 16); 
+ 
+          float la = tlat / 1000000.0; 
+          float ln = tlon / 1000000.0; 
+          Serial.printf("lat: %.6f, lon: %.6f\n", la, ln); 
+ 
+          int z = 16; 
+          double L = 85.05112878; 
+          double px = int(pow(2.0, z + 7.0) * ((ln / 180.0) + 1.0)); 
+          double py = int(pow(2.0, z + 7.0) * (-1 * atanh(sin(PI * la / 180.0)) + atanh(sin(PI * L / 180.0))) / PI); 
+          int tx = px / 256; 
+          int ty = py / 256; 
+          Serial.printf("tx: %d, ty: %d\n", tx, ty); 
+ 
+          int x = int(px) % 256; 
+          int y = int(py) % 256; 
+ 
+          // 新しいタイルの位置が最後の位置と異なる場合のみ描画 
+          if (tx != lastTx || ty != lastTy) { 
+            lastTx = tx; 
+            lastTy = ty; 
+ 
+            String filename[9]; 
+            filename[0] = String("/images/std/" + String(z) + "/" + String(tx - 1) + "/" + String(ty - 1) + ".png"); 
+            filename[1] = String("/images/std/" + String(z) + "/" + String(tx) + "/" + String(ty - 1) + ".png"); 
+            filename[2] = String("/images/std/" + String(z) + "/" + String(tx + 1) + "/" + String(ty - 1) + ".png"); 
+            filename[3] = String("/images/std/" + String(z) + "/" + String(tx - 1) + "/" + String(ty) + ".png"); 
+            filename[4] = String("/images/std/" + String(z) + "/" + String(tx) + "/" + String(ty) + ".png"); 
+            filename[5] = String("/images/std/" + String(z) + "/" + String(tx + 1) + "/" + String(ty) + ".png"); 
+            filename[6] = String("/images/std/" + String(z) + "/" + String(tx - 1) + "/" + String(ty + 1) + ".png"); 
+            filename[7] = String("/images/std/" + String(z) + "/" + String(tx) + "/" + String(ty + 1) + ".png"); 
+            filename[8] = String("/images/std/" + String(z) + "/" + String(tx + 1) + "/" + String(ty + 1) + ".png"); 
+ 
+            for (int i = 0; i < 9; i++) { 
+              Serial.printf("%s\n", filename[i].c_str()); 
+            } 
+ 
+            record.fillSprite(TFT_WHITE); 
+            File file = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+            if (file) { 
+              record.drawPng(&file, 0, 0); // SDカードからPNG画像を描画 
+              file.close(); // ファイルを閉じる 
+              write(); // 画面に表示 
+            } else { 
+              Serial.println("File not found!"); 
+            } 
+          } 
         } 
       } 
     } 
   } 
 }; 
-
+ 
 void setup() {
   Serial.begin(115200);
   tft.init();
@@ -247,6 +246,7 @@ void setup() {
     }
   }
 
+  // ディスプレイとBLEの初期化
   display.init();
   display.setRotation(0);
   record.createSprite(240, 240);
@@ -260,6 +260,8 @@ void setup() {
   pBLEScan->start(scanTime, false);
 }
 
+
+ 
 void loop() { 
   delay(10000); 
 }
