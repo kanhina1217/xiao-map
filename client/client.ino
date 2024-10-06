@@ -148,6 +148,14 @@ class XiaoRoundDisplay : public lgfx::LGFX_Device {
  
 LGFX_Sprite record(&display); 
 
+//関数定義
+void write() { 
+  display.startWrite(); 
+  record.pushSprite(0,0); 
+  display.endWrite(); 
+  display.waitDisplay(); 
+} 
+
 // BLEスキャンの設定
 BLEScan* pBLEScan;
 int scanTime = 5;  // スキャン時間
@@ -435,13 +443,6 @@ void displayTask(void *pvParameters) {
     vTaskDelay(100 / portTICK_PERIOD_MS);  // 適宜ディレイ
   }
 }
- 
-void write() { 
-  display.startWrite(); 
-  record.pushSprite(0,0); 
-  display.endWrite(); 
-  display.waitDisplay(); 
-} 
  
 void setup() {
   Serial.begin(115200);
