@@ -235,22 +235,25 @@ void calculationTask(void *pvParameters) {
       BLEData data = bleDataQueue.front();
       bleDataQueue.pop();
       xSemaphoreGive(bleDataMutex);
-      Serial.printf("!IN CALC TASK! lat: %.6f, lon: %.6f\n", data.lat, data.lon);
 
       // ピクセル座標
       int z = 16;  // ズームレベル
       double L = 85.05112878;
       double px = int(pow(2.0, z + 7.0) * ((data.lon / 180.0) + 1.0));
       double py = int(pow(2.0, z + 7.0) * (-1 * atanh(sin(PI * data.lat / 180.0)) + atanh(sin(PI * L / 180.0))) / PI);
+      Serial.printf("!IN CALC TASK! px: %.6f, py: %.6f\n", px, py);
       // タイル座標
       int tx = px / 256; 
       int ty = py / 256;
+      Serial.printf("!IN CALC TASK! tx: %.6f, ty: %.6f\n", tx, ty);
       // 位置座標
       int x = int(px) % 256; 
       int y = int(py) % 256; 
+      Serial.printf("!IN CALC TASK! x: %.6f, y: %.6f\n", x, y);
       // ずらす座標
       int sx = 120 - x;  // x座標
       int sy = 120 - y;  // y座標
+      Serial.printf("!IN CALC TASK! sx: %.6f, sy: %.6f\n", sx, sy);
 
       // 計算結果をキューに追加
       DisplayData displayData;
