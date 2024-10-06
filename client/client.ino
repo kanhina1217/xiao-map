@@ -235,6 +235,7 @@ void calculationTask(void *pvParameters) {
       BLEData data = bleDataQueue.front();
       bleDataQueue.pop();
       xSemaphoreGive(bleDataMutex);
+      Serial.printf("!IN CALC TASK! lat: %.6f, lon: %.6f\n", data.lat, data.lon);
 
       // ピクセル座標
       int z = 16;  // ズームレベル
