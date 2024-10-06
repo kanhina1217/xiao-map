@@ -464,15 +464,16 @@ void displayTask(void *pvParameters) {
               }
             }
             //中心に印をつける
-            record.fillCircle(120, 120, 8, TFT_CYAN);
-            record.fillCircle(120, 120, 5, TFT_BLUE);
-            write(); // 画面に表示
+            display.fillCircle(120, 120, 8, TFT_LIGHTGREY);
+            display.fillCircle(120, 120, 5, TFT_BLUE);
           } else {
             record.pushSprite(sx, sy);
             write();
             Serial.println("Tile shift");
             Serial.printf("sx: %d, sy: %d\n", sx, sy);
-          }                              // 実際にディスプレイに反映
+            display.fillCircle(120, 120, 8, TFT_LIGHTGREY);
+            display.fillCircle(120, 120, 5, TFT_BLUE);
+          }                  
     } else {
       xSemaphoreGive(displayDataMutex);
     }
