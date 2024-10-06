@@ -62,20 +62,23 @@ class XiaoRoundDisplay : public lgfx::LGFX_Device {
  public:  
   XiaoRoundDisplay() {  
     auto bus_cfg = _bus.config();  
-    bus_cfg.spi_host = SPI2_HOST; // for XIAO RP2040      
+    bus_cfg.spi_host = SPI3_HOST;  // VSPI_HOST を SPI3_HOST に置き換え
     bus_cfg.spi_mode = 0;  
     bus_cfg.freq_write = 40000000;  
-    bus_cfg.freq_read  = 20000000;  
-    bus_cfg.pin_sclk = D8; // for XIAO RP2040  
-    bus_cfg.pin_mosi = D10; // for XIAO RP2040  
-    bus_cfg.pin_miso = D9; // for XIAO RP2040  
-    bus_cfg.pin_dc   = D3; // for XIAO RP2040  
+    bus_cfg.freq_read = 16000000;  
+    bus_cfg.spi_3wire = false;  
+    bus_cfg.use_lock = true;  
+    bus_cfg.dma_channel = 1;  
+    bus_cfg.pin_sclk = 18;  
+    bus_cfg.pin_mosi = 23;  
+    bus_cfg.pin_miso = -1;  
+    bus_cfg.pin_dc = 2;  
     _bus.config(bus_cfg);  
     _panel.setBus(&_bus);  
 
     auto panel_cfg = _panel.config();  
-    panel_cfg.pin_cs = D1; // for XIAO RP2040  
-    panel_cfg.pin_rst = -1;  
+    panel_cfg.pin_cs = 5;  
+    panel_cfg.pin_rst = 4;  
     panel_cfg.pin_busy = -1;  
     panel_cfg.memory_width = 240;  
     panel_cfg.memory_height = 240;  
@@ -85,16 +88,16 @@ class XiaoRoundDisplay : public lgfx::LGFX_Device {
     panel_cfg.offset_y = 0;  
     panel_cfg.offset_rotation = 0;  
     panel_cfg.dummy_read_pixel = 8;  
-    panel_cfg.dummy_read_bits  = 1;  
-    panel_cfg.readable = false;  
-    panel_cfg.invert = true;  
+    panel_cfg.dummy_read_bits = 1;  
+    panel_cfg.readable = true;  
+    panel_cfg.invert = false;  
     panel_cfg.rgb_order = false;  
     panel_cfg.dlen_16bit = false;  
     panel_cfg.bus_shared = true;  
     _panel.config(panel_cfg);  
 
     auto light_cfg = _light.config();  
-    light_cfg.pin_bl = D6; // for XIAO RP2040  
+    light_cfg.pin_bl = 21;  
     light_cfg.invert = false;  
     light_cfg.freq = 44100;  
     light_cfg.pwm_channel = 7;  
@@ -102,10 +105,10 @@ class XiaoRoundDisplay : public lgfx::LGFX_Device {
     _panel.setLight(&_light);  
 
     auto touch_cfg = _touch.config();   
-    touch_cfg.pin_int = D7; // for XIAO RP2040  
+    touch_cfg.pin_int = 7; // for XIAO RP2040  
     touch_cfg.i2c_port = 1; // for XIAO RP2040  
-    touch_cfg.pin_sda  = D4; // for XIAO RP2040  
-    touch_cfg.pin_scl  = D5; // for XIAO RP2040  
+    touch_cfg.pin_sda  = 4; // for XIAO RP2040  
+    touch_cfg.pin_scl  = 5; // for XIAO RP2040  
     touch_cfg.freq = 400000;  
 
     _touch.config(touch_cfg);  
@@ -115,7 +118,7 @@ class XiaoRoundDisplay : public lgfx::LGFX_Device {
   }  
 } display;  
 
-LGFX_Sprite record(&display);  
+LGFX_Sprite record(&display);  // グローバルに移動
 
 void write(int sx, int sy) {  
   display.startWrite();  
@@ -140,12 +143,9 @@ int lastTy = -1;
 void loadTileImages(String filenames[]) {
   record.fillSprite(TFT_WHITE);
   for (int i = 0; i < 9; i++) {
-    if (SD.exists(filenames[i].c_str())) {
-      Serial.printf("Loading file: %s\n", filenames[i].c_str());
-      record.drawPngFile(SD, filenames[i].c_str(), (i % 3) * 256, (i / 3) * 256);
-    } else {
-      Serial.printf("File not found: %s\n", filenames[i].c_str());
-    }
+    Serial.printf("Loading file: %s\n", filenames[i].c_str());
+    record.drawPngFile(SD, filenames[i].c_str(), (i % 3) * 256, (i / 3) * 256);
+    
   }
 }
 
@@ -217,15 +217,15 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
           // 16進数から浮動小数点に変換
           unsigned long tlat = strtoul(Blat.c_str(), nullptr, 16);
           unsigned long tlon = strtoul(Blon.c_str(), nullptr, 16);
-          float la = tlat / 1000000.0;
-          float ln = tlon / 1000000.0;
-          Serial.printf("lat: %.6f, lon: %.6f\n", la, ln);
+          float lat = tlat / 1000000.0;
+          float lon = tlon / 1000000.0;
+          Serial.printf("lat: %.6f, lon: %.6f\n", lat, lon);
 
           // タイル座標の計算
           int z = 16;
           double L = 85.05112878;
-          double px = int(pow(2.0, z + 7.0) * ((ln / 180.0) + 1.0));
-          double py = int(pow(2.0, z + 7.0) * (-1 * atanh(sin(PI * la / 180.0)) + atanh(sin(PI * L / 180.0))) / PI);
+          double px = int(pow(2.0, z + 7.0) * ((lon / 180.0) + 1.0));
+          double py = int(pow(2.0, z + 7.0) * (-1 * atanh(sin(PI * lat / 180.0)) + atanh(sin(PI * L / 180.0))) / PI);
           int tx = px / 256;
           int ty = py / 256;
           Serial.printf("tx: %d, ty: %d\n", tx, ty);
@@ -235,8 +235,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
           int rx = 120 - x + 256;
           int ry = 120 - y + 256;
 
-          // ディスプレイを更新
-          onTargetManufacturerDataFound(la, ln, tx, ty, rx, ry);
+          onTargetManufacturerDataFound(lat, lon, tx, ty, rx, ry);
         }
       }
     }
@@ -275,7 +274,6 @@ void setup() {
   BLEDevice::init("");  
   BLEScan *pBLEScan = BLEDevice::getScan();  
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());  
-  pBLEScan->setStackSize(4096);
   pBLEScan->setInterval(100);  
   pBLEScan->setWindow(99);  
   pBLEScan->setActiveScan(true);  
