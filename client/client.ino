@@ -185,6 +185,9 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
  
           int x = int(px) % 256; 
           int y = int(py) % 256; 
+
+          int sx = 120 - x;
+          int sy = 120 - y;
  
           // 新しいタイルの位置が最後の位置と異なる場合のみ描画 
           if (tx != lastTx || ty != lastTy) { 
@@ -209,13 +212,13 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             record.fillSprite(TFT_WHITE); 
             File file = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
             if (file) { 
-              record.drawPng(&file, 0, 0); // SDカードからPNG画像を描画 
+              record.drawPng(&file, sx, sy); // SDカードからPNG画像を描画 
               file.close(); // ファイルを閉じる 
               write(); // 画面に表示 
             } else { 
               Serial.println("File not found!"); 
             } 
-          } 
+          } else {}
         } 
       } 
     } 
