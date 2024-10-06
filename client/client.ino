@@ -21,6 +21,8 @@ struct BLEData {
 struct DisplayData {
   int sx;  // ずらすx座標
   int sy;  // ずらすy座標
+  int x;
+  int y;
   int tx;  // タイルx座標
   int ty;  // タイルy座標
 };
@@ -29,9 +31,9 @@ struct DisplayData {
 int lastTx = -1; 
 int lastTy = -1; 
 
-int tx = 0, ty = 0, z = 0;
-int x = 0, y = 0;
-int sx = 0, sy = 0;
+// int tx = 0, ty = 0, z = 0;
+// int x = 0, y = 0;
+// int sx = 0, sy = 0;
 
 // キューとミューテックスの宣言
 std::queue<BLEData> bleDataQueue;
@@ -259,6 +261,8 @@ void calculationTask(void *pvParameters) {
       DisplayData displayData;
       displayData.tx = tx;
       displayData.ty = ty;
+      displayData.x = x;
+      displayData.y = y;
       displayData.sx = sx;
       displayData.sy = sy;
 
@@ -282,6 +286,14 @@ void displayTask(void *pvParameters) {
       DisplayData data = displayDataQueue.front();
       displayDataQueue.pop();
       xSemaphoreGive(displayDataMutex);
+
+      int tx = data.tx;
+      int ty = data.ty;
+      int x = data.x;
+      int y = data.y;
+      int sx = data.sx;
+      int sy = data.sy;
+      int z = 16;
 
       // 新しいタイルの位置が最後の位置と異なる場合のみ描画 
           if (tx != lastTx || ty != lastTy) { 
@@ -451,6 +463,7 @@ void displayTask(void *pvParameters) {
                 Serial.println("File not found!"); 
               }
             }
+            
           } else {
             record.pushSprite(sx, sy);
             write();
