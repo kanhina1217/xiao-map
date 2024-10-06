@@ -1,7 +1,6 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEScan.h>
-#include <LovyanGFX.hpp>
 #include <queue>
 #include <SD.h>
 
@@ -29,6 +28,10 @@ struct DisplayData {
 // 画像タイルの位置を記録する変数 
 int lastTx = -1; 
 int lastTy = -1; 
+
+int tx = 0, ty = 0, z = 0;
+int x = 0, y = 0;
+int sx = 0, sy = 0;
 
 // キューとミューテックスの宣言
 std::queue<BLEData> bleDataQueue;
