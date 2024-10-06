@@ -181,6 +181,13 @@ void bleDataTask(void *pvParameters) {
           uint8_t* payload = advertisedDevice.getPayload();
           int payloadLength = advertisedDevice.getPayloadLength();
 
+          // 生データログ
+          Serial.print("Raw Data: ");
+          for (int j = 0; j < payloadLength; j++) {
+            Serial.printf("%02X ", payload[j]);
+          }
+          Serial.println();
+
           String Blat = "";
           String Blon = "";
 
