@@ -482,20 +482,18 @@ void displayTask(void *pvParameters) {
   }
 }
 
-void batteryTask(void *pvParameters) {
-  for (;;) {
-    int mvolts = 0;
-    for(int i=0; i<20; i++){
-      mvolts += analogReadMilliVolts(D0);
-    }
-    mvolts /= 20;
-    int level = (mvolts - 1480) * 100 / 2050; // 1480 ~ 2050
-    level = (level<0) ? 0 : ((level>100) ? 100 : level); 
-
-    int fillper = 6 * (level / 100);
-    display.drawRoundRect(180, 180, 16, 8, 2, TFT_BLACK);
-    display.fillRoundRect(181, 181, 14, fillper, 2, TFT_BLUE);
+void batterycheck() {
+  int mvolts = 0;
+  for(int i=0; i<20; i++){
+    mvolts += analogReadMilliVolts(D0);
   }
+  mvolts /= 20;
+  int level = (mvolts - 1480) * 100 / 2050; // 1480 ~ 2050
+  level = (level<0) ? 0 : ((level>100) ? 100 : level); 
+
+  int fillper = 6 * (level / 100);
+  display.drawRoundRect(180, 180, 16, 8, 2, TFT_BLACK);
+  display.fillRoundRect(181, 181, 14, fillper, 2, TFT_BLUE);
 }
  
 void setup() {
@@ -542,11 +540,10 @@ void setup() {
   xTaskCreate(bleDataTask, "BLEDataTask", 8192, NULL, 1, NULL);
   xTaskCreate(calculationTask, "CalculationTask", 8192, NULL, 1, NULL);
   xTaskCreate(displayTask, "DisplayTask", 8192, NULL, 1, NULL);
-  xTaskCreate(batteryTask, "batteryTask", 8192, NULL, 1, NULL);
 }
 
 
  
 void loop() {
-
+  batterycheck();
 }
