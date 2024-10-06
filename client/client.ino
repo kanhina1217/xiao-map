@@ -218,7 +218,10 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             } else { 
               Serial.println("File not found!"); 
             } 
-          } else {}
+          } else {
+            record.pushSprite(sx, sy);
+            write();
+          }
         } 
       } 
     } 
