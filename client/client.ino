@@ -185,6 +185,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
  
           int x = int(px) % 256; 
           int y = int(py) % 256; 
+          Serial.printf("x: %d, y: %d\n", x, y); 
 
           int sx = 120 - x;
           int sy = 120 - y;
@@ -208,24 +209,165 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             for (int i = 0; i < 9; i++) { 
               Serial.printf("%s\n", filename[i].c_str()); 
             } 
- 
-            record.fillSprite(TFT_WHITE); 
-            File file = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
-            if (file) { 
-              record.drawPng(&file, sx, sy); // SDカードからPNG画像を描画 
-              file.close(); // ファイルを閉じる 
-              write(); // 画面に表示 
-            } else { 
-              Serial.println("File not found!"); 
+
+            record.fillSprite(TFT_WHITE);
+            if ((120 <= x && x <= 136) && (120 <= y && y <= 136)) 
+              File file = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+              if (file) { 
+                record.drawPng(&file, sx, sy); // SDカードからPNG画像を描画 
+                file.close(); // ファイルを閉じる 
+                write(); // 画面に表示 
+                Serial.println("Update success");
+              } else { 
+                Serial.println("File not found!"); 
+              }
             } 
+            if ((0 <= x && x <= 120) && (120 <= y && y <= 136)) {
+              File file1 = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+              File file2 = SD.open(filename[3].c_str());
+              if (file1) { 
+                record.drawPng(&file1, sx, sy); // SDカードからPNG画像を描画 
+                record.drawPng(&file2, sx - 256, sy);
+                file1.close(); // ファイルを閉じる
+                file2.close(); 
+                write(); // 画面に表示 
+                Serial.println("Update success");
+              } else { 
+                Serial.println("File not found!"); 
+              }
+            }
+            if ((120 <= x && x <= 136) && (0 <= y && y <= 120)) {
+              File file1 = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+              File file2 = SD.open(filename[1].c_str());
+              if (file1) { 
+                record.drawPng(&file1, sx, sy); // SDカードからPNG画像を描画 
+                record.drawPng(&file2, sx, sy - 256);
+                file1.close(); // ファイルを閉じる
+                file2.close(); 
+                write(); // 画面に表示 
+                Serial.println("Update success");
+              } else { 
+                Serial.println("File not found!"); 
+              }
+            }
+            if ((136 <= x && x <= 256) && (120 <= y && y <= 136)) {
+              File file1 = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+              File file2 = SD.open(filename[5].c_str());
+              if (file1) { 
+                record.drawPng(&file1, sx, sy); // SDカードからPNG画像を描画 
+                record.drawPng(&file2, sx + 256, sy);
+                file1.close(); // ファイルを閉じる
+                file2.close(); 
+                write(); // 画面に表示 
+                Serial.println("Update success");
+              } else { 
+                Serial.println("File not found!"); 
+              }
+            }
+            if ((120 <= x && x <= 136) && (136 <= y && y <= 256)) {
+              File file1 = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+              File file2 = SD.open(filename[7].c_str());
+              if (file1) { 
+                record.drawPng(&file1, sx, sy); // SDカードからPNG画像を描画 
+                record.drawPng(&file2, sx, sy + 256);
+                file1.close(); // ファイルを閉じる
+                file2.close(); 
+                write(); // 画面に表示 
+                Serial.println("Update success");
+              } else { 
+                Serial.println("File not found!"); 
+              }
+            }
+            if ((0 <= x && x <= 120) && (0 <= y && y <= 120)) {
+              File file1 = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+              File file2 = SD.open(filename[0].c_str());
+              File file3 = SD.open(filename[1].c_str());
+              File file4 = SD.open(filename[3].c_str());
+              if (file1) { 
+                record.drawPng(&file1, sx, sy); // SDカードからPNG画像を描画 
+                record.drawPng(&file2, sx - 256, sy - 256);
+                record.drawPng(&file3, sx, sy - 256);
+                record.drawPng(&file4, sx - 256, sy);
+                file1.close(); // ファイルを閉じる
+                file2.close(); 
+                file3.close();
+                file4.close();
+                write(); // 画面に表示 
+                Serial.println("Update success");
+              } else { 
+                Serial.println("File not found!"); 
+              }
+            }
+            if ((136 <= x && x <= 256) && (0 <= y && y <= 120)) {
+              File file1 = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+              File file2 = SD.open(filename[1].c_str());
+              File file3 = SD.open(filename[2].c_str());
+              File file4 = SD.open(filename[5].c_str());
+              if (file1) { 
+                record.drawPng(&file1, sx, sy); // SDカードからPNG画像を描画 
+                record.drawPng(&file2, sx, sy - 256);
+                record.drawPng(&file3, sx + 256, sy - 256);
+                record.drawPng(&file4, sx + 256, sy);
+                file1.close(); // ファイルを閉じる
+                file2.close(); 
+                file3.close();
+                file4.close(); 
+                write(); // 画面に表示 
+                Serial.println("Update success");
+              } else { 
+                Serial.println("File not found!"); 
+              }
+            }
+            if ((0 <= x && x <= 120) && (136 <= y && y <= 256)) {
+              File file1 = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+              File file2 = SD.open(filename[3].c_str());
+              File file3 = SD.open(filename[6].c_str());
+              File file4 = SD.open(filename[7].c_str());
+              if (file1) { 
+                record.drawPng(&file1, sx, sy); // SDカードからPNG画像を描画 
+                record.drawPng(&file2, sx - 256, sy);
+                record.drawPng(&file3, sx - 256, sy + 256);
+                record.drawPng(&file4, sx, sy + 256);
+                file1.close(); // ファイルを閉じる
+                file2.close(); 
+                file3.close();
+                file4.close();
+                write(); // 画面に表示 
+                Serial.println("Update success");
+              } else { 
+                Serial.println("File not found!"); 
+              }
+            }
+            if ((136 <= x && x <= 256) && (136 <= y && y <= 256)) {
+              File file1 = SD.open(filename[4].c_str()); // 画像をSDカードから読み込む 
+              File file2 = SD.open(filename[5].c_str());
+              File file3 = SD.open(filename[7].c_str());
+              File file4 = SD.open(filename[8].c_str());
+              if (file1) { 
+                record.drawPng(&file1, sx, sy); // SDカードからPNG画像を描画 
+                record.drawPng(&file2, sx + 256, sy);
+                record.drawPng(&file3, sx, sy + 256);
+                record.drawPng(&file4, sx + 256, sy + 256);
+                file1.close(); // ファイルを閉じる
+                file2.close(); 
+                file3.close();
+                file4.close(); 
+                write(); // 画面に表示 
+                Serial.println("Update success");
+              } else { 
+                Serial.println("File not found!"); 
+              }
+            }
           } else {
             record.pushSprite(sx, sy);
             write();
+            Serial.println("Tile shift");
+            Serial.printf("sx: %d, sy: %d\n", sx, sy);
           }
         } 
       } 
     } 
-  } 
+  }; 
 }; 
  
 void setup() {
