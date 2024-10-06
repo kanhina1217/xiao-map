@@ -235,62 +235,6 @@ void bleDataTask(void *pvParameters) {
     vTaskDelay(1000 / portTICK_PERIOD_MS);  // 1秒ごとにスキャン
   }
 }
- 
-          if (manufacturerData.length() == manufacturerDataLength) { 
-            bool match = true; 
-            for (int j = 0; j < manufacturerDataLength; j++) { 
-              if ((uint8_t)manufacturerData[j] != targetManufacturerData[j]) { 
-                match = false; 
-                break; 
-              } 
-            } 
-    
-            if (match) {
-              Serial.println("Target Manufacturer Data found!");
-              uint8_t* payload = advertisedDevice.getPayload();
-              int payloadLength = advertisedDevice.getPayloadLength();
-
-              // 生データログ
-              Serial.print("Raw Data: ");
-              for (int j = 0; j < payloadLength; j++) {
-                Serial.printf("%02X ", payload[j]);
-              }
-              Serial.println();
-
-              String Blat = "";
-              String Blon = "";
-
-              for (int i = 0; i < payloadLength; i++) {
-                if (i >= 13 && i <= 16) {
-                  Blat += String(payload[i], HEX);
-                }
-                if (i >= 17 && i <= 20) {
-                  Blon += String(payload[i], HEX);
-                }
-              }
-
-              unsigned long tlat = strtoul(Blat.c_str(), nullptr, 16);
-              unsigned long tlon = strtoul(Blon.c_str(), nullptr, 16);
-
-              BLEData data;
-              data.lat = tlat / 1000000.0;
-              data.lon = tlon / 1000000.0;
-              Serial.printf("lat: %d, lon: %d\n", tlat, tlon);
-
-
-              // BLEデータをキューに追加
-              xSemaphoreTake(bleDataMutex, portMAX_DELAY);
-              bleDataQueue.push(data);
-              xSemaphoreGive(bleDataMutex);
-            }
-          }
-        }
-      }
-    }
-    pBLEScan->clearResults(); // メモリをクリア
-    vTaskDelay(1000 / portTICK_PERIOD_MS);  // 1秒ごとにスキャン
-  }
-}
 
 // 計算タスク
 void calculationTask(void *pvParameters) {
