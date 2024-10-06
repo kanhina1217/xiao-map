@@ -165,14 +165,16 @@ const uint8_t targetManufacturerData[] = {0xFF, 0xFF, 0x01, 0x02, 0x03, 0x04};
 const size_t manufacturerDataLength = sizeof(targetManufacturerData); 
 
 // BLEデータ取得タスク
-void bleDataTask(void *pvParameters) {
-  for (;;) {
-    pBLEScan = BLEDevice::getScan();  // BLEスキャン開始
-    BLEScanResults results = pBLEScan->start(scanTime, false);
+void bleDataTask(void *pvParameters) { 
+  for (;;) { 
+    pBLEScan = BLEDevice::getScan();  // BLEスキャン開始 
+    BLEScanResults results = pBLEScan->start(scanTime, false); // スキャン結果を取得
 
-    // デバイスからのデータ取得
-    if (BLEScanResults results = pBLEScan->getResults()) {
-      for (int i = 0; i < results.getCount(); ++i) {
+    // スキャン結果が1つ以上あるか確認
+    if (results.getCount() > 0) {
+        // スキャン結果がある場合の処理
+      for (int i = 0; i < results.getCount(); i++) {
+        BLEAdvertisedDevice device = results.getDevice(i);
         BLEAdvertisedDevice advertisedDevice = results.getDevice(i);
         if (advertisedDevice.haveManufacturerData()) {
           Serial.println("Target Manufacturer Data found!");
@@ -205,6 +207,7 @@ void bleDataTask(void *pvParameters) {
         }
       }
     }
+    pBLEScan->clearResults(); // メモリをクリア
     vTaskDelay(1000 / portTICK_PERIOD_MS);  // 1秒ごとにスキャン
   }
 }
