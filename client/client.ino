@@ -466,6 +466,7 @@ void displayTask(void *pvParameters) {
             //中心に印をつける
             display.fillCircle(120, 120, 8, TFT_LIGHTGREY);
             display.fillCircle(120, 120, 5, TFT_BLUE);
+            batterycheck();
           } else {
             record.pushSprite(sx, sy);
             write();
@@ -473,6 +474,7 @@ void displayTask(void *pvParameters) {
             Serial.printf("sx: %d, sy: %d\n", sx, sy);
             display.fillCircle(120, 120, 8, TFT_LIGHTGREY);
             display.fillCircle(120, 120, 5, TFT_BLUE);
+            batterycheck();
           }                  
     } else {
       xSemaphoreGive(displayDataMutex);
@@ -545,5 +547,4 @@ void setup() {
 
  
 void loop() {
-  batterycheck();
 }
