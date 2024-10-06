@@ -495,8 +495,9 @@ void batteryTask(void *pvParameters) {
       level = (level<0) ? 0 : ((level>100) ? 100 : level); 
       return level;
     }
+    int fillper = 6 * (battery_level_percent(); / 100);
     display.drowRoundRect(180, 180, 16, 8, 2, TFT_BLACK);
-    display.fillRoundRect(181, 181, 14, 6, 2, TFT_BLUE);
+    display.fillRoundRect(181, 181, 14, fillper, 2, TFT_BLUE);
   }
 }
  
