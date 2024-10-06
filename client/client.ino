@@ -481,6 +481,24 @@ void displayTask(void *pvParameters) {
     vTaskDelay(100 / portTICK_PERIOD_MS);  // 適宜ディレイ
   }
 }
+
+void batteryTask(void *pvParameters) {
+  for (;;) {
+    int32_t battery_level_percent(void)
+    {
+      int32_t mvolts = 0;
+      for(int8_t i=0; i<NUM_ADC_SAMPLE; i++){
+        mvolts += analogReadMilliVolts(D0);
+      }
+      mvolts /= NUM_ADC_SAMPLE;
+      int32_t level = (mvolts - 1480) * 100 / 2050; // 1480 ~ 2050
+      level = (level<0) ? 0 : ((level>100) ? 100 : level); 
+      return level;
+    }
+    display.drowRoundRect(180, 180, 16, 8, 2, TFT_BLACK);
+    display.fillRoundRect(181, 181, 14, 6, 2, TFT_BLUE);
+  }
+}
  
 void setup() {
   Serial.begin(115200);
