@@ -202,12 +202,15 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
  
           float lat = tlat / 1000000.0; 
           float lon = tlon / 1000000.0; 
-          Serial.printf("lat: %.6f, lon: %.6f\n", lat, lon); 
+          
+          lat = 35.498100;
+          lon = 139.678406;
 
           // BLEデータをキューに追加
           BLEData data;
           data.lat = lat;
           data.lon = lon;
+          Serial.printf("lat: %.6f, lon: %.6f\n", lat, lon); 
 
           xSemaphoreTake(bleDataMutex, portMAX_DELAY);
           bleDataQueue.push(data);
