@@ -203,8 +203,8 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
           float lat = tlat / 1000000.0; 
           float lon = tlon / 1000000.0; 
           
-          lat = 35.498100;
-          lon = 139.678406;
+          //lat = 35.498100;
+          //lon = 139.678406;
 
           // BLEデータをキューに追加
           BLEData data;
