@@ -463,7 +463,10 @@ void displayTask(void *pvParameters) {
                 Serial.println("File not found!"); 
               }
             }
-            
+            //中心に印をつける
+            record.fillCircle(120, 120, 8, TFT_CYAN);
+            record.fillCircle(120, 120, 5, TFT_BLUE);
+            write(); // 画面に表示
           } else {
             record.pushSprite(sx, sy);
             write();
