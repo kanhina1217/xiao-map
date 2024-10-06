@@ -177,42 +177,56 @@ void bleDataTask(void *pvParameters) {
         BLEAdvertisedDevice device = results.getDevice(i);
         BLEAdvertisedDevice advertisedDevice = results.getDevice(i);
         if (advertisedDevice.haveManufacturerData()) {
-          Serial.println("Target Manufacturer Data found!");
-          uint8_t* payload = advertisedDevice.getPayload();
-          int payloadLength = advertisedDevice.getPayloadLength();
+          std::string manufacturerData = advertisedDevice.getManufacturerData(); 
+ 
+          if (manufacturerData.length() == manufacturerDataLength) { 
+            bool match = true; 
+            for (int i = 0; i < manufacturerDataLength; i++) { 
+              if ((uint8_t)manufacturerData[i] != targetManufacturerData[i]) { 
+                match = false; 
+                break; 
+              } 
+            } 
+    
+            if (match) {
+              Serial.println("Target Manufacturer Data found!");
+              uint8_t* payload = advertisedDevice.getPayload();
+              int payloadLength = advertisedDevice.getPayloadLength();
 
-          // 生データログ
-          Serial.print("Raw Data: ");
-          for (int j = 0; j < payloadLength; j++) {
-            Serial.printf("%02X ", payload[j]);
-          }
-          Serial.println();
+              // 生データログ
+              Serial.print("Raw Data: ");
+              for (int j = 0; j < payloadLength; j++) {
+                Serial.printf("%02X ", payload[j]);
+              }
+              Serial.println();
 
-          String Blat = "";
-          String Blon = "";
+              String Blat = "";
+              String Blon = "";
 
-          for (int i = 0; i < payloadLength; i++) {
-            if (i >= 13 && i <= 16) {
-              Blat += String(payload[i], HEX);
+              for (int i = 0; i < payloadLength; i++) {
+                if (i >= 13 && i <= 16) {
+                  Blat += String(payload[i], HEX);
+                }
+                if (i >= 17 && i <= 20) {
+                  Blon += String(payload[i], HEX);
+                }
+              }
+
+              unsigned long tlat = strtoul(Blat.c_str(), nullptr, 16);
+              unsigned long tlon = strtoul(Blon.c_str(), nullptr, 16);
+
+              BLEData data;
+              data.lat = tlat / 1000000.0;
+              data.lon = tlon / 1000000.0;
+              Serial.printf("lat: %d, lon: %d\n", tlat, tlon);
+
+
+              // BLEデータをキューに追加
+              xSemaphoreTake(bleDataMutex, portMAX_DELAY);
+              bleDataQueue.push(data);
+              xSemaphoreGive(bleDataMutex);
             }
-            if (i >= 17 && i <= 20) {
-              Blon += String(payload[i], HEX);
-            }
           }
-
-          unsigned long tlat = strtoul(Blat.c_str(), nullptr, 16);
-          unsigned long tlon = strtoul(Blon.c_str(), nullptr, 16);
-
-          BLEData data;
-          data.lat = tlat / 1000000.0;
-          data.lon = tlon / 1000000.0;
-          Serial.printf("lat: %d, lon: %d\n", tlat, tlon);
-
-
-          // BLEデータをキューに追加
-          xSemaphoreTake(bleDataMutex, portMAX_DELAY);
-          bleDataQueue.push(data);
-          xSemaphoreGive(bleDataMutex);
         }
       }
     }
