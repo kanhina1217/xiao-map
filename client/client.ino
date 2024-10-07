@@ -174,11 +174,6 @@ void batterycheck() {
 
   int fillper = map(level, 0, 100, 0, 26);
 
-  display.setCursor(0,120);
-  display.setTextColor(TFT_BLACK);
-  display.setTextSize(2);
-  display.printf("fillper: %d \n",fillper);
-
   display.fillRoundRect(170, 40, fillper, 11, 2, TFT_GREEN);
   display.drawRoundRect(170, 40, 26, 11, 2, TFT_BLACK);
 
