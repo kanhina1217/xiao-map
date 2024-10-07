@@ -34,8 +34,6 @@ int lastTx = -1;
 int lastTy = -1; 
 
 // touch用変数
-float initialLat = 0.0;  // 初期位置の緯度
-float initialLon = 0.0;  // 初期位置の経度
 float currentLat = 0.0;  // 現在の緯度
 float currentLon = 0.0;  // 現在の経度
 float bleLat = 0.0;
