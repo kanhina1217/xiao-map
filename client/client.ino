@@ -221,49 +221,83 @@ void timecheck() {
               );
 }
 
-void handleButton() { 
-  static bool lastButtonState = HIGH; 
-  static unsigned long lastClickTime = 0;  // 最後にクリックされた時間
-  static unsigned long clickInterval = 250; // ダブルクリックと認識する間隔 (ms)
-  static bool singleClickDetected = false;  // シングルクリックがあったかどうか
-  static bool displayOn = true;             // ディスプレイのON/OFF状態
+void handleButton() {  
+  static bool lastButtonState = HIGH;  
+  static unsigned long lastClickTime = 0;  // 最後にクリックされた時間 
+  static unsigned long clickInterval = 250; // ダブルクリックと認識する間隔 (ms) 
+  static bool singleClickDetected = false;  // シングルクリックがあったかどうか 
+  static bool displayOn = true;             // ディスプレイのON/OFF状態 
+  static bool longPressDetected = false;    // 長押しが検出されたかどうか
+  static unsigned long pressStartTime = 0;  // 長押しが開始された時間
+  static int brightness = 10;               // 現在の輝度
+  static bool increasing = true;            // 輝度が増加中か減少中か
 
-  bool currentButtonState = digitalRead(0); 
- 
-  // ボタンが押された瞬間を検出
-  if (lastButtonState == HIGH && currentButtonState == LOW) {
-    unsigned long currentTime = millis();
+  bool currentButtonState = digitalRead(0);  
+  
+  // ボタンが押された瞬間を検出 
+  if (lastButtonState == HIGH && currentButtonState == LOW) { 
+    unsigned long currentTime = millis(); 
     
-    if (singleClickDetected && (currentTime - lastClickTime < clickInterval)) {
-      // ダブルクリックと認識
-      UseGPS = !UseGPS;
-      Serial.printf("UseGPS (Double Click): %s\n", UseGPS ? "ON" : "OFF");
-      currentLat = bleLat; 
-      currentLon = bleLon;
-      singleClickDetected = false;  // ダブルクリックとして処理したためリセット
-    } else {
-      // シングルクリックを記録
-      singleClickDetected = true;
-      lastClickTime = currentTime;
+    pressStartTime = currentTime;  // 長押しの開始時間を記録
+
+    if (singleClickDetected && (currentTime - lastClickTime < clickInterval)) { 
+      // ダブルクリックと認識 
+      UseGPS = !UseGPS; 
+      Serial.printf("UseGPS (Double Click): %s\n", UseGPS ? "ON" : "OFF"); 
+      currentLat = bleLat;  
+      currentLon = bleLon; 
+      singleClickDetected = false;  // ダブルクリックとして処理したためリセット 
+    } else { 
+      // シングルクリックを記録 
+      singleClickDetected = true; 
+      lastClickTime = currentTime; 
+    } 
+  } 
+
+  // ボタンが押され続けている場合（長押し検出）
+  if (currentButtonState == LOW) {
+    unsigned long currentTime = millis();
+
+    // 長押しとして認識（例：500ms以上）
+    if (currentTime - pressStartTime > 500) {
+      longPressDetected = true;
+
+      // 輝度を10～255の間で増減させる
+      if (increasing) {
+        brightness++;
+        if (brightness >= 255) increasing = false; // 最大値に達したら減少に切り替え
+      } else {
+        brightness--;
+        if (brightness <= 10) increasing = true;  // 最小値に達したら増加に切り替え
+      }
+
+      analogWrite(backlightPin, brightness); // 輝度を変更
+      delay(10); // 輝度変化の速度を調整（必要に応じて調整）
     }
   }
 
-  // シングルクリック後、ダブルクリックがない場合にシングルクリックとして処理
-  if (singleClickDetected && (millis() - lastClickTime > clickInterval)) {
-    // シングルクリックとしてディスプレイのON/OFFをトグル
-    displayOn = !displayOn;
-    if (displayOn) {
-      Serial.println("Display ON");
-      analogWrite(backlightPin, 255);
-    } else {
-      Serial.println("Display OFF");
-      analogWrite(backlightPin, 0);
-    }
-    singleClickDetected = false;  // シングルクリック処理が完了したためリセット
+  // ボタンが離された瞬間に現在の輝度で停止
+  if (lastButtonState == LOW && currentButtonState == HIGH) {
+    if (longPressDetected) {
+      Serial.printf("Long press released. Brightness stopped at: %d\n", brightness);
+      longPressDetected = false; // 長押し状態をリセット
+    } else if (singleClickDetected && (millis() - lastClickTime > clickInterval)) { 
+      // シングルクリックとしてディスプレイのON/OFFをトグル 
+      displayOn = !displayOn; 
+      if (displayOn) { 
+        Serial.println("Display ON"); 
+        analogWrite(backlightPin, 255); 
+      } else { 
+        Serial.println("Display OFF"); 
+        analogWrite(backlightPin, 0); 
+      } 
+      singleClickDetected = false;  // シングルクリック処理が完了したためリセット 
+    } 
   }
- 
-  lastButtonState = currentButtonState;
+  
+  lastButtonState = currentButtonState; 
 }
+
 
 
 void writelog() {
