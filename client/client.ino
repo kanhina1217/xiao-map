@@ -608,7 +608,7 @@ void setup() {
   displayDataMutex = xSemaphoreCreateMutex();
 
   // タスクの作成
-  xTaskCreate(bleDataTask, "BLEDataTask", 8192, NULL, 1, NULL);
+  xTaskCreate(bleDataTask, "BLEDataTask", 8192, NULL, 3, NULL);
   xTaskCreate(calculationTask, "CalculationTask", 8192, NULL, 1, NULL);
   xTaskCreate(displayTask, "DisplayTask", 8192, NULL, 1, NULL);
 }
