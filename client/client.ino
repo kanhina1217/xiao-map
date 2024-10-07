@@ -13,6 +13,8 @@ TFT_eSPI tft = TFT_eSPI();
 
 bool UseGPS = true;
 
+int backlightPin = 21;
+
 // RTCライブラリ
 #include "I2C_BM8563.h"
 I2C_BM8563 rtc(I2C_BM8563_DEFAULT_ADDRESS, Wire);
@@ -219,21 +221,52 @@ void timecheck() {
               );
 }
 
-// ボタンの状態を監視してUseGPSをトグル
-void handleButton() {
-  static bool lastButtonState = HIGH;
-  bool currentButtonState = digitalRead(0);
+void handleButton() { 
+  static bool lastButtonState = HIGH; 
+  static unsigned long lastClickTime = 0;  // 最後にクリックされた時間
+  static unsigned long clickInterval = 250; // ダブルクリックと認識する間隔 (ms)
+  static bool singleClickDetected = false;  // シングルクリックがあったかどうか
+  static bool displayOn = true;             // ディスプレイのON/OFF状態
 
+  bool currentButtonState = digitalRead(0); 
+ 
+  // ボタンが押された瞬間を検出
   if (lastButtonState == HIGH && currentButtonState == LOW) {
-    // ボタンが押されたとき
-    UseGPS = !UseGPS;
-    Serial.printf("UseGPS: %s\n", UseGPS ? "ON" : "OFF");
-    currentLat = bleLat;
-    currentLon = bleLon;
+    unsigned long currentTime = millis();
+    
+    if (singleClickDetected && (currentTime - lastClickTime < clickInterval)) {
+      // ダブルクリックと認識
+      UseGPS = !UseGPS;
+      Serial.printf("UseGPS (Double Click): %s\n", UseGPS ? "ON" : "OFF");
+      currentLat = bleLat; 
+      currentLon = bleLon;
+      singleClickDetected = false;  // ダブルクリックとして処理したためリセット
+    } else {
+      // シングルクリックを記録
+      singleClickDetected = true;
+      lastClickTime = currentTime;
+    }
   }
 
+  // シングルクリック後、ダブルクリックがない場合にシングルクリックとして処理
+  if (singleClickDetected && (millis() - lastClickTime > clickInterval)) {
+    // シングルクリックとしてディスプレイのON/OFFをトグル
+    displayOn = !displayOn;
+    if (displayOn) {
+      Serial.println("Display ON");
+      // ここでディスプレイをONにする処理を追加
+      // 例: tft.display(true);
+    } else {
+      Serial.println("Display OFF");
+      // ここでディスプレイをOFFにする処理を追加
+      // 例: tft.display(false);
+    }
+    singleClickDetected = false;  // シングルクリック処理が完了したためリセット
+  }
+ 
   lastButtonState = currentButtonState;
 }
+
 
 void writelog() {
   I2C_BM8563_DateTypeDef dateStruct;
