@@ -172,10 +172,9 @@ void batterycheck() {
   int32_t level = (mvolts - 1480) * 100 / 570; // 1480 ~ 2050
   level = (level<0) ? 0 : ((level>100) ? 100 : level); 
 
-  int fillper = 26 * (level / 100);
-  Serial.printf("fillper: %d \n",fillper);
+  
 
-  display.setCursor(120,120);
+  display.setCursor(0,120);
   display.setTextColor(TFT_BLACK);
   display.setTextSize(2);
   display.printf("fillper: %d \n",fillper);
