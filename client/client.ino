@@ -236,28 +236,35 @@ void handleButton() {
 }
 
 void writelog() {
+  I2C_BM8563_DateTypeDef dateStruct;
+  I2C_BM8563_TimeTypeDef timeStruct;
+
+  // Get RTC
+  rtc.getDate(&dateStruct);
+  rtc.getTime(&timeStruct);
+
   File logFile = SD.open("/log.txt", FILE_WRITE);
   if (logFile) {
-    dataFile.print(dateStruct.year);
-    dataFile.print('/');
-    dataFile.print(dateStruct.month);
-    dataFile.print('/');
-    dataFile.print(dateStruct.date);
-    dataFile.print(", ");
-    dataFile.print(timeStruct.hours);
-    dataFile.print(':');
-    dataFile.print(timeStruct.minutes);
-    dataFile.print(':');
-    dataFile.print(timeStruct.seconds);
-    dataFile.print(", ");
-    dataFile.print(bleLat, 6);  // 緯度
-    dataFile.print(", ");
-    dataFile.print(bleLon, 6);  // 経度
-    dataFile.print(", ");
-    dataFile.print(bleAlt, 2);  // 高度
-    dataFile.print(", ");
-    dataFile.print(bleSpd, 2);  // 速度
-    dataFile.println();
+    logFile.print(dateStruct.year);
+    logFile.print('/');
+    logFile.print(dateStruct.month);
+    logFile.print('/');
+    logFile.print(dateStruct.date);
+    logFile.print(", ");
+    logFile.print(timeStruct.hours);
+    logFile.print(':');
+    logFile.print(timeStruct.minutes);
+    logFile.print(':');
+    logFile.print(timeStruct.seconds);
+    logFile.print(", ");
+    logFile.print(bleLat, 6);  // 緯度
+    logFile.print(", ");
+    logFile.print(bleLon, 6);  // 経度
+    logFile.print(", ");
+    logFile.print(bleAlt, 2);  // 高度
+    logFile.print(", ");
+    logFile.print(bleSpd, 2);  // 速度
+    logFile.println();
 
     logFile.close();
 
@@ -319,6 +326,8 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
  
           String Blat = ""; 
           String Blon = ""; 
+          String Balt = "";
+          String Bspd = "";
  
           for (int i = 0; i < payloadLength; i++) { 
             if (i >= 13 && i <= 16) { 
@@ -349,6 +358,8 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
           bleLon = lon;
           bleAlt = alt;
           bleSpd = spd;
+
+          writelog();
 
           // BLEデータをキューに追加
           if (UseGPS) {
