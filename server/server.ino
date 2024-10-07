@@ -51,19 +51,41 @@ void displayInfo() {
         long lat = static_cast<long>(gps.location.lat() * 1e6);
         long lng = static_cast<long>(gps.location.lng() * 1e6);
         
+        // 高度と速度を整数に変換
+        long alt = static_cast<long>(gps.altitude.meters() * 100); // 高度を100倍して2桁まで整数に
+        long spd = static_cast<long>(gps.speed.kmph() * 100);      // 速度を100倍して2桁まで整数に
+
+        // 緯度をserviceDataに追加
         serviceData[1] = (lat >> 24) & 0xFF; // 緯度の上位バイト
         serviceData[2] = (lat >> 16) & 0xFF; // 緯度の次のバイト
         serviceData[3] = (lat >> 8) & 0xFF;  // 緯度の次のバイト
         serviceData[4] = lat & 0xFF;         // 緯度の下位バイト
 
+        // 経度をserviceDataに追加
         serviceData[5] = (lng >> 24) & 0xFF; // 経度の上位バイト
         serviceData[6] = (lng >> 16) & 0xFF; // 経度の次のバイト
         serviceData[7] = (lng >> 8) & 0xFF;  // 経度の次のバイト
         serviceData[8] = lng & 0xFF;         // 経度の下位バイト
 
+        // 高度をserviceDataに追加
+        serviceData[9]  = (alt >> 24) & 0xFF; // 高度の上位バイト
+        serviceData[10] = (alt >> 16) & 0xFF; // 高度の次のバイト
+        serviceData[11] = (alt >> 8) & 0xFF;  // 高度の次のバイト
+        serviceData[12] = alt & 0xFF;         // 高度の下位バイト
+
+        // 速度をserviceDataに追加
+        serviceData[13] = (spd >> 24) & 0xFF; // 速度の上位バイト
+        serviceData[14] = (spd >> 16) & 0xFF; // 速度の次のバイト
+        serviceData[15] = (spd >> 8) & 0xFF;  // 速度の次のバイト
+        serviceData[16] = spd & 0xFF;         // 速度の下位バイト
+
         Serial.print(lat); // 緯度をシリアル出力
         Serial.print(F(","));
-        Serial.println(lng); // 経度をシリアル出力
+        Serial.print(lng); // 経度をシリアル出力
+        Serial.print(F(","));
+        Serial.print(alt); // 高度をシリアル出力
+        Serial.print(F(","));
+        Serial.println(spd); // 速度をシリアル出力
     } else {
         Serial.print(F("INVALID"));
     }
