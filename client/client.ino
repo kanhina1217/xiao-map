@@ -235,6 +235,37 @@ void handleButton() {
   lastButtonState = currentButtonState;
 }
 
+void writelog() {
+  File logFile = SD.open("/log.txt", FILE_WRITE);
+  if (logFile) {
+    dataFile.print(dateStruct.year);
+    dataFile.print('/');
+    dataFile.print(dateStruct.month);
+    dataFile.print('/');
+    dataFile.print(dateStruct.date);
+    dataFile.print(", ");
+    dataFile.print(timeStruct.hours);
+    dataFile.print(':');
+    dataFile.print(timeStruct.minutes);
+    dataFile.print(':');
+    dataFile.print(timeStruct.seconds);
+    dataFile.print(", ");
+    dataFile.print(bleLat, 6);  // 緯度
+    dataFile.print(", ");
+    dataFile.print(bleLon, 6);  // 経度
+    dataFile.print(", ");
+    dataFile.print(bleAlt, 2);  // 高度
+    dataFile.print(", ");
+    dataFile.print(bleSpd, 2);  // 速度
+    dataFile.println();
+
+    logFile.close();
+    Serial.println("Log file written");
+  } else {
+    Serial.println("Failed to open log file");
+  }
+}
+
 
 // BLEスキャンの設定
 BLEScan* pBLEScan;
