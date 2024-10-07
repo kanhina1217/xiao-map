@@ -205,8 +205,8 @@ void timecheck() {
               timeStruct.minutes,
               timeStruct.seconds
               );
-  display.fillRoundRect(90, 40, 70, 12, 2, TFT_WHITE);
-  display.setCursor(90,42);
+  display.fillRoundRect(80, 40, 80, 12, 2, TFT_WHITE);
+  display.setCursor(82 ,42);
   display.setTextColor(TFT_BLACK);
   display.setTextSize(1.2);
   display.printf("%02d/%02d %02d:%02d\n",
