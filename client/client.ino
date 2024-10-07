@@ -188,6 +188,8 @@ void handleButton() {
     // ボタンが押されたとき
     UseGPS = !UseGPS;
     Serial.printf("UseGPS: %s\n", UseGPS ? "ON" : "OFF");
+    float currentLat = lat;
+    float currentLon = lon;
   }
 
   lastButtonState = currentButtonState;
@@ -202,6 +204,7 @@ int scanTime = 5;  // スキャン時間
 const uint8_t targetManufacturerData[] = {0xFF, 0xFF, 0x01, 0x02, 0x03, 0x04}; 
 const size_t manufacturerDataLength = sizeof(targetManufacturerData); 
 
+//BLE取得クラス
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks { 
   void onResult(BLEAdvertisedDevice advertisedDevice) { 
     if (advertisedDevice.haveManufacturerData()) { 
@@ -251,8 +254,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             xSemaphoreGive(bleDataMutex);
           }
           if (!UseGPS) {
-            float currentLat = lat;
-            float currentLon = lon;
+            
             uint16_t x,y;
             if (display.getTouch(&x, &y)) {
               // スライド量に応じて緯度と経度を更新
