@@ -260,6 +260,28 @@ void writelog() {
     dataFile.println();
 
     logFile.close();
+
+    Serial.print(dateStruct.year);
+    Serial.print('/');
+    Serial.print(dateStruct.month);
+    Serial.print('/');
+    Serial.print(dateStruct.date);
+    Serial.print(", ");
+    Serial.print(timeStruct.hours);
+    Serial.print(':');
+    Serial.print(timeStruct.minutes);
+    Serial.print(':');
+    Serial.print(timeStruct.seconds);
+    Serial.print(", ");
+    Serial.print(bleLat, 6);  // 緯度
+    Serial.print(", ");
+    Serial.print(bleLon, 6);  // 経度
+    Serial.print(", ");
+    Serial.print(bleAlt, 2);  // 高度
+    Serial.print(", ");
+    Serial.print(bleSpd, 2);  // 速度
+    Serial.println();
+
     Serial.println("Log file written");
   } else {
     Serial.println("Failed to open log file");
