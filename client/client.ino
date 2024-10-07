@@ -174,11 +174,20 @@ void batterycheck() {
 
   int fillper = 26 * (level / 100);
   Serial.printf("fillper: %d \n",fillper);
+
+  display.setCursor(120,120);
+  display.setTextColor(TFT_BLACK);
+  display.setTextSize(2);
+  display.printf("fillper: %d \n",fillper);
+
   display.fillRoundRect(170, 40, fillper, 11, 2, TFT_GREEN);
   display.drawRoundRect(170, 40, 26, 11, 2, TFT_BLACK);
+
   display.setCursor(174,42);
   display.setTextColor(TFT_BLACK);
+  display.setTextSize(1);
   display.printf("%d",level);
+  
   Serial.printf("Battery: %d \n",level);
 }
 
