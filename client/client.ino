@@ -13,6 +13,10 @@ TFT_eSPI tft = TFT_eSPI();
 
 bool UseGPS = true;
 
+// RTCライブラリ
+#include "I2C_BM8563.h"
+I2C_BM8563 rtc(I2C_BM8563_DEFAULT_ADDRESS, Wire);
+
 // BLEから取得したデータ
 struct BLEData {
   float lat;  // 緯度
@@ -38,7 +42,6 @@ float currentLat = 0.0;  // 現在の緯度
 float currentLon = 0.0;  // 現在の経度
 float bleLat = 0.0;
 float bleLon = 0.0;
-
 
 // キューとミューテックスの宣言
 std::queue<BLEData> bleDataQueue;
@@ -172,12 +175,7 @@ void batterycheck() {
   int32_t level = (mvolts - 1480) * 100 / 570; // 1480 ~ 2050
   level = (level<0) ? 0 : ((level>100) ? 100 : level); 
 
-  
-
-  display.setCursor(0,120);
-  display.setTextColor(TFT_BLACK);
-  display.setTextSize(2);
-  display.printf("fillper: %d \n",fillper);
+  int fillper = map(level, 0, 100, 0, 26);
 
   display.fillRoundRect(170, 40, fillper, 11, 2, TFT_GREEN);
   display.drawRoundRect(170, 40, 26, 11, 2, TFT_BLACK);
@@ -189,6 +187,34 @@ void batterycheck() {
   
   Serial.printf("Battery: %d \n",level);
 }
+
+// void timecheck() {
+//   I2C_BM8563_DateTypeDef dateStruct;
+//   I2C_BM8563_TimeTypeDef timeStruct;
+
+//   // Get RTC
+//   rtc.getDate(&dateStruct);
+//   rtc.getTime(&timeStruct);
+
+//   // Print RTC
+//   Serial.printf("%04d/%02d/%02d %02d:%02d:%02d\n",
+//               dateStruct.year,
+//               dateStruct.month,
+//               dateStruct.date,
+//               timeStruct.hours,
+//               timeStruct.minutes,
+//               timeStruct.seconds
+//               );
+//   display.setCursor(90,42);
+//   display.setTextColor(TFT_BLACK, TFT_WHITE);
+//   display.setTextSize(1);
+//   display.printf("%02d/%02d %02d:%02d\n",
+//               dateStruct.month,
+//               dateStruct.date,
+//               timeStruct.hours,
+//               timeStruct.minutes,
+//               );
+// }
 
 // ボタンの状態を監視してUseGPSをトグル
 void handleButton() {
@@ -600,9 +626,11 @@ void setup() {
 
   analogReadResolution(12);
 
-  // ディスプレイとBLEの初期化
+  //初期化
   display.init();
   record.createSprite(240, 240);
+  Wire.begin();
+  rtc.begin();
 
   // BLE初期化
   BLEDevice::init("");
