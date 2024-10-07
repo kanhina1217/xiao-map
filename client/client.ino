@@ -11,6 +11,8 @@
 #include <TFT_eSPI.h>
 TFT_eSPI tft = TFT_eSPI();
 
+bool UseGPS = true;
+
 // BLEから取得したデータ
 struct BLEData {
   float lat;  // 緯度
@@ -36,6 +38,7 @@ double currentLat = 0.0;
 double currentLon = 0.0;
 double initialLat = 0.0;  // 初期位置の緯度
 double initialLon = 0.0;  // 初期位置の経度
+
 
 // キューとミューテックスの宣言
 std::queue<BLEData> bleDataQueue;
@@ -543,7 +546,6 @@ void setup() {
   tft.init();
 
   bool cardMounted = false;
-  bool UseGPS = true;
 
   pinMode(3, OUTPUT);
 
