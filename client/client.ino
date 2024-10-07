@@ -34,8 +34,12 @@ int lastTx = -1;
 int lastTy = -1; 
 
 // touch用変数
-double initialLat = 0.0;  // 初期位置の緯度
-double initialLon = 0.0;  // 初期位置の経度
+float initialLat = 0.0;  // 初期位置の緯度
+float initialLon = 0.0;  // 初期位置の経度
+float currentLat = 0.0;  // 現在の緯度
+float currentLon = 0.0;  // 現在の経度
+float bleLat = 0.0;
+float bleLon = 0.0;
 
 
 // キューとミューテックスの宣言
@@ -188,8 +192,8 @@ void handleButton() {
     // ボタンが押されたとき
     UseGPS = !UseGPS;
     Serial.printf("UseGPS: %s\n", UseGPS ? "ON" : "OFF");
-    float currentLat = lat;
-    float currentLon = lon;
+    currentLat = bleLat;
+    currentLon = bleLon;
   }
 
   lastButtonState = currentButtonState;
@@ -241,6 +245,9 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
  
           float lat = tlat / 1000000.0; 
           float lon = tlon / 1000000.0; 
+
+          bleLat = lat;
+          bleLon = lon;
 
           // BLEデータをキューに追加
           if (UseGPS) {
