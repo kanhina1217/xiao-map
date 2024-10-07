@@ -188,33 +188,34 @@ void batterycheck() {
   Serial.printf("Battery: %d \n",level);
 }
 
-// void timecheck() {
-//   I2C_BM8563_DateTypeDef dateStruct;
-//   I2C_BM8563_TimeTypeDef timeStruct;
+void timecheck() {
+  I2C_BM8563_DateTypeDef dateStruct;
+  I2C_BM8563_TimeTypeDef timeStruct;
 
-//   // Get RTC
-//   rtc.getDate(&dateStruct);
-//   rtc.getTime(&timeStruct);
+  // Get RTC
+  rtc.getDate(&dateStruct);
+  rtc.getTime(&timeStruct);
 
-//   // Print RTC
-//   Serial.printf("%04d/%02d/%02d %02d:%02d:%02d\n",
-//               dateStruct.year,
-//               dateStruct.month,
-//               dateStruct.date,
-//               timeStruct.hours,
-//               timeStruct.minutes,
-//               timeStruct.seconds
-//               );
-//   display.setCursor(90,42);
-//   display.setTextColor(TFT_BLACK, TFT_WHITE);
-//   display.setTextSize(1);
-//   display.printf("%02d/%02d %02d:%02d\n",
-//               dateStruct.month,
-//               dateStruct.date,
-//               timeStruct.hours,
-//               timeStruct.minutes,
-//               );
-// }
+  // Print RTC
+  Serial.printf("%04d/%02d/%02d %02d:%02d:%02d\n",
+              dateStruct.year,
+              dateStruct.month,
+              dateStruct.date,
+              timeStruct.hours,
+              timeStruct.minutes,
+              timeStruct.seconds
+              );
+  display.fillRoundRect(90, 40, 70, 12, 2, TFT_WHITE);
+  display.setCursor(90,42);
+  display.setTextColor(TFT_BLACK);
+  display.setTextSize(1.2);
+  display.printf("%02d/%02d %02d:%02d\n",
+              dateStruct.month,
+              dateStruct.date,
+              timeStruct.hours,
+              timeStruct.minutes
+              );
+}
 
 // ボタンの状態を監視してUseGPSをトグル
 void handleButton() {
@@ -576,6 +577,7 @@ void displayTask(void *pvParameters) {
               display.drawLine(120, 115, 120, 125, TFT_RED);
             }
             batterycheck();
+            timecheck();
           } else {
             record.pushSprite(sx, sy);
             write();
@@ -590,6 +592,7 @@ void displayTask(void *pvParameters) {
               display.drawLine(120, 115, 120, 125, TFT_RED);
             }
             batterycheck();
+            timecheck();
           }                  
     } else {
       xSemaphoreGive(displayDataMutex);
