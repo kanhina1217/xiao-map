@@ -498,8 +498,8 @@ void displayTask(void *pvParameters) {
               display.fillCircle(120, 120, 5, TFT_BLUE);
             }
             if (!UseGPS) {
-              display.drowLine(115, 120, 125, 120, TFT_RED);
-              display.fillCircle(120, 115, 120, 125, TFT_RED);
+              display.drawLine(115, 120, 125, 120, TFT_RED);
+              display.drawLine(120, 115, 120, 125, TFT_RED);
             }
             batterycheck();
           } else {
@@ -512,8 +512,8 @@ void displayTask(void *pvParameters) {
               display.fillCircle(120, 120, 5, TFT_BLUE);
             }
             if (!UseGPS) {
-              display.drowLine(115, 120, 125, 120, TFT_RED);
-              display.fillCircle(120, 115, 120, 125, TFT_RED);
+              display.drawLine(115, 120, 125, 120, TFT_RED);
+              display.drawLine(120, 115, 120, 125, TFT_RED);
             }
             batterycheck();
           }                  
