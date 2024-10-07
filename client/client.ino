@@ -215,6 +215,9 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             data.lat = lat;
             data.lon = lon;
             Serial.printf("lat: %.6f, lon: %.6f\n", lat, lon); 
+            xSemaphoreTake(bleDataMutex, portMAX_DELAY);
+            bleDataQueue.push(data);
+            xSemaphoreGive(bleDataMutex);
           }
           if (!UseGPS) {
             uint16_t x,y;
@@ -230,11 +233,10 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             data.lat = currentLat;
             data.lon = currentLon;
             Serial.printf("lat: %.6f, lon: %.6f\n", currentLat, currentLon); 
+            xSemaphoreTake(bleDataMutex, portMAX_DELAY);
+            bleDataQueue.push(data);
+            xSemaphoreGive(bleDataMutex);
           }
-
-          xSemaphoreTake(bleDataMutex, portMAX_DELAY);
-          bleDataQueue.push(data);
-          xSemaphoreGive(bleDataMutex);
         }
       }
     }
