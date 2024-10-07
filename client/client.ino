@@ -13,7 +13,7 @@ TFT_eSPI tft = TFT_eSPI();
 
 bool UseGPS = true;
 
-int backlightPin = 21;
+int backlightPin = 43;
 
 // RTCライブラリ
 #include "I2C_BM8563.h"
@@ -254,12 +254,10 @@ void handleButton() {
     displayOn = !displayOn;
     if (displayOn) {
       Serial.println("Display ON");
-      // ここでディスプレイをONにする処理を追加
-      // 例: tft.display(true);
+      analogWrite(backlightPin, 255);
     } else {
       Serial.println("Display OFF");
-      // ここでディスプレイをOFFにする処理を追加
-      // 例: tft.display(false);
+      analogWrite(backlightPin, 0);
     }
     singleClickDetected = false;  // シングルクリック処理が完了したためリセット
   }
@@ -721,6 +719,7 @@ void setup() {
 
   pinMode(3, OUTPUT);
   pinMode(0, INPUT_PULLUP);
+  pinMode(backlightPin, OUTPUT);
 
   while (!cardMounted) {
     if (SD.begin(3)) {
