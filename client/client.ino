@@ -34,8 +34,6 @@ int lastTx = -1;
 int lastTy = -1; 
 
 // touch用変数
-double currentLat = 0.0;
-double currentLon = 0.0;
 double initialLat = 0.0;  // 初期位置の緯度
 double initialLon = 0.0;  // 初期位置の経度
 
@@ -253,6 +251,8 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             xSemaphoreGive(bleDataMutex);
           }
           if (!UseGPS) {
+            double currentLat = 0.0;
+            double currentLon = 0.0;
             uint16_t x,y;
             if (display.getTouch(&x, &y)) {
               // スライド量に応じて緯度と経度を更新
