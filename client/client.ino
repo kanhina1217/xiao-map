@@ -163,6 +163,39 @@ void write() {
   display.waitDisplay(); 
 } 
 
+void batterycheck() {
+  int32_t mvolts = 0;
+  for(int8_t i=0; i<20; i++){
+    mvolts += analogReadMilliVolts(D0);
+  }
+  mvolts /= 20;
+  int32_t level = (mvolts - 1480) * 100 / 570; // 1480 ~ 2050
+  level = (level<0) ? 0 : ((level>100) ? 100 : level); 
+
+  int fillper = 26 * (level / 100);
+  display.fillRoundRect(170, 40, fillper, 11, 2, TFT_GREEN);
+  display.drawRoundRect(170, 40, 26, 11, 2, TFT_BLACK);
+  display.setCursor(174,42);
+  display.setTextColor(TFT_BLACK);
+  display.printf("%d",level);
+  printf("Battery: %d \n",level);
+}
+
+// ボタンの状態を監視してUseGPSをトグル
+void handleButton() {
+  static bool lastButtonState = HIGH;
+  bool currentButtonState = digitalRead(0);
+
+  if (lastButtonState == HIGH && currentButtonState == LOW) {
+    // ボタンが押されたとき
+    UseGPS = !UseGPS;
+    Serial.printf("UseGPS: %s\n", UseGPS ? "ON" : "OFF");
+  }
+
+  lastButtonState = currentButtonState;
+}
+
+
 // BLEスキャンの設定
 BLEScan* pBLEScan;
 int scanTime = 5;  // スキャン時間
@@ -524,24 +557,6 @@ void displayTask(void *pvParameters) {
     vTaskDelay(50 / portTICK_PERIOD_MS);  // 適宜ディレイ
   }
 }
-
-void batterycheck() {
-  int32_t mvolts = 0;
-  for(int8_t i=0; i<20; i++){
-    mvolts += analogReadMilliVolts(D0);
-  }
-  mvolts /= 20;
-  int32_t level = (mvolts - 1480) * 100 / 570; // 1480 ~ 2050
-  level = (level<0) ? 0 : ((level>100) ? 100 : level); 
-
-  int fillper = 26 * (level / 100);
-  display.fillRoundRect(170, 40, fillper, 11, 2, TFT_GREEN);
-  display.drawRoundRect(170, 40, 26, 11, 2, TFT_BLACK);
-  display.setCursor(174,42);
-  display.setTextColor(TFT_BLACK);
-  display.printf("%d",level);
-  printf("Battery: %d \n",level);
-}
  
 void setup() {
   Serial.begin(115200);
@@ -550,6 +565,7 @@ void setup() {
   bool cardMounted = false;
 
   pinMode(3, OUTPUT);
+  pinMode(0, INPUT_PULLUP);
 
   while (!cardMounted) {
     if (SD.begin(3)) {
@@ -594,4 +610,5 @@ void setup() {
 
  
 void loop() {
+  handleButton();
 }
