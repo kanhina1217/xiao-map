@@ -42,6 +42,8 @@ float currentLat = 0.0;  // 現在の緯度
 float currentLon = 0.0;  // 現在の経度
 float bleLat = 0.0;
 float bleLon = 0.0;
+float bleAlt = 0.0;
+float bleSpd = 0.0;
 
 // キューとミューテックスの宣言
 std::queue<BLEData> bleDataQueue;
@@ -272,16 +274,28 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             if (i >= 17 && i <= 20) { 
               Blon += String(payload[i], HEX); 
             } 
+            if (i >= 21 && i <= 24) { 
+              Balt += String(payload[i], HEX); 
+            } 
+            if (i >= 25 && i <= 28) { 
+              Bspd += String(payload[i], HEX); 
+            } 
           } 
  
           unsigned long tlat = strtoul(Blat.c_str(), nullptr, 16); 
           unsigned long tlon = strtoul(Blon.c_str(), nullptr, 16); 
+          unsigned long talt = strtoul(Balt.c_str(), nullptr, 16); 
+          unsigned long tspd = strtoul(Bspd.c_str(), nullptr, 16); 
  
           float lat = tlat / 1000000.0; 
           float lon = tlon / 1000000.0; 
+          float alt = talt / 100.0;
+          float spd = tspd / 100.0;
 
           bleLat = lat;
           bleLon = lon;
+          bleAlt = alt;
+          bleSpd = spd;
 
           // BLEデータをキューに追加
           if (UseGPS) {
