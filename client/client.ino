@@ -207,10 +207,12 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
           //lon = 139.678406;
 
           // BLEデータをキューに追加
-          BLEData data;
-          data.lat = lat;
-          data.lon = lon;
-          Serial.printf("lat: %.6f, lon: %.6f\n", lat, lon); 
+          if (UseGPS) {
+            BLEData data;
+            data.lat = lat;
+            data.lon = lon;
+            Serial.printf("lat: %.6f, lon: %.6f\n", lat, lon); 
+          }
 
           xSemaphoreTake(bleDataMutex, portMAX_DELAY);
           bleDataQueue.push(data);
@@ -507,6 +509,7 @@ void setup() {
   tft.init();
 
   bool cardMounted = false;
+  bool UseGPS = true;
 
   pinMode(3, OUTPUT);
 
