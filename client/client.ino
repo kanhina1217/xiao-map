@@ -172,7 +172,7 @@ void batterycheck() {
   int32_t level = (mvolts - 1480) * 100 / 570; // 1480 ~ 2050
   level = (level<0) ? 0 : ((level>100) ? 100 : level); 
 
-  
+  int fillper = map(level, 0, 100, 0, 26);
 
   display.setCursor(0,120);
   display.setTextColor(TFT_BLACK);
