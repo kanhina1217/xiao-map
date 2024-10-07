@@ -243,7 +243,7 @@ void writelog() {
   rtc.getDate(&dateStruct);
   rtc.getTime(&timeStruct);
 
-  File logFile = SD.open("/log.txt", FILE_WRITE);
+  File logFile = SD.open("/log.txt", FILE_APPEND);
   if (logFile) {
     logFile.print(dateStruct.year);
     logFile.print('/');
