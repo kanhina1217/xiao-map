@@ -218,7 +218,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
           }
           if (!UseGPS) {
             uint16_t x,y;
-            if (tft.getTouch(&x, &y)) {
+            if (display.getTouch(&x, &y)) {
               // スライド量に応じて緯度と経度を更新
               double deltaLon = (x - 120) * 0.0001;  // スライド量に応じた経度の変化量
               double deltaLat = (y - 120) * 0.0001;  // スライド量に応じた緯度の変化量
