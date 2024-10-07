@@ -241,7 +241,6 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
  
           float lat = tlat / 1000000.0; 
           float lon = tlon / 1000000.0; 
-          
 
           // BLEデータをキューに追加
           if (UseGPS) {
