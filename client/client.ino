@@ -3,13 +3,13 @@
 #include <BLEScan.h>
 #include <queue>
 #include <SD.h>
-
-#include <TFT_eSPI.h>
-TFT_eSPI tft = TFT_eSPI();
  
 // display変数 
 #define LGFX_USE_V1 
 #include <LovyanGFX.hpp> 
+
+#include <TFT_eSPI.h>
+TFT_eSPI tft = TFT_eSPI();
 
 // BLEから取得したデータ
 struct BLEData {
@@ -21,8 +21,8 @@ struct BLEData {
 struct DisplayData {
   int sx;  // ずらすx座標
   int sy;  // ずらすy座標
-  int x;
-  int y;
+  int x;  // 現在のx座標
+  int y;  // 現在のy座標
   int tx;  // タイルx座標
   int ty;  // タイルy座標
 };
@@ -31,9 +31,11 @@ struct DisplayData {
 int lastTx = -1; 
 int lastTy = -1; 
 
-// int tx = 0, ty = 0, z = 0;
-// int x = 0, y = 0;
-// int sx = 0, sy = 0;
+// touch用変数
+double currentLat = 0.0;
+double currentLon = 0.0;
+double initialLat = 0.0;  // 初期位置の緯度
+double initialLon = 0.0;  // 初期位置の経度
 
 // キューとミューテックスの宣言
 std::queue<BLEData> bleDataQueue;
@@ -203,8 +205,6 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
           float lat = tlat / 1000000.0; 
           float lon = tlon / 1000000.0; 
           
-          //lat = 35.498100;
-          //lon = 139.678406;
 
           // BLEデータをキューに追加
           if (UseGPS) {
@@ -212,6 +212,21 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
             data.lat = lat;
             data.lon = lon;
             Serial.printf("lat: %.6f, lon: %.6f\n", lat, lon); 
+          }
+          if (!UseGPS) {
+            uint16_t x,y;
+            if (tft.getTouch(&x, &y)) {
+              // スライド量に応じて緯度と経度を更新
+              double deltaLon = (x - 120) * 0.0001;  // スライド量に応じた経度の変化量
+              double deltaLat = (y - 120) * 0.0001;  // スライド量に応じた緯度の変化量
+              currentLon += deltaLon;
+              currentLat += deltaLat;
+            }
+
+            BLEData data;
+            data.lat = currentLat;
+            data.lon = currentLon;
+            Serial.printf("lat: %.6f, lon: %.6f\n", currentLat, currentLon); 
           }
 
           xSemaphoreTake(bleDataMutex, portMAX_DELAY);
@@ -229,7 +244,14 @@ void bleDataTask(void *pvParameters) {
     pBLEScan = BLEDevice::getScan();  // BLEスキャン開始
     pBLEScan->start(scanTime, false);
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);  // 1秒ごとにスキャン
+    if (UseGPS) {
+      Serial.println("Use GPS");
+      vTaskDelay(1000 / portTICK_PERIOD_MS);  // 1秒ごとにスキャン
+    }
+    if (!UseGPS) {
+      Serial.println("Not Use GPS");
+      vTaskDelay(50 / portTICK_PERIOD_MS);  // 0.05秒ごとにスキャン
+    }
   }
 }
 
@@ -275,7 +297,7 @@ void calculationTask(void *pvParameters) {
       xSemaphoreGive(bleDataMutex);
     }
 
-    vTaskDelay(100 / portTICK_PERIOD_MS);  // 適宜ディレイ
+    vTaskDelay(50 / portTICK_PERIOD_MS);  // 適宜ディレイ
   }
 }
 
@@ -466,23 +488,35 @@ void displayTask(void *pvParameters) {
               }
             }
             //中心に印をつける
-            display.fillCircle(120, 120, 8, TFT_LIGHTGREY);
-            display.fillCircle(120, 120, 5, TFT_BLUE);
+            if (UseGPS) {
+              display.fillCircle(120, 120, 8, TFT_LIGHTGREY);
+              display.fillCircle(120, 120, 5, TFT_BLUE);
+            }
+            if (!UseGPS) {
+              display.drowLine(115, 120, 125, 120, TFT_RED);
+              display.fillCircle(120, 115, 120, 125, TFT_RED);
+            }
             batterycheck();
           } else {
             record.pushSprite(sx, sy);
             write();
             Serial.println("Tile shift");
             Serial.printf("sx: %d, sy: %d\n", sx, sy);
-            display.fillCircle(120, 120, 8, TFT_LIGHTGREY);
-            display.fillCircle(120, 120, 5, TFT_BLUE);
+            if (UseGPS) {
+              display.fillCircle(120, 120, 8, TFT_LIGHTGREY);
+              display.fillCircle(120, 120, 5, TFT_BLUE);
+            }
+            if (!UseGPS) {
+              display.drowLine(115, 120, 125, 120, TFT_RED);
+              display.fillCircle(120, 115, 120, 125, TFT_RED);
+            }
             batterycheck();
           }                  
     } else {
       xSemaphoreGive(displayDataMutex);
     }
 
-    vTaskDelay(100 / portTICK_PERIOD_MS);  // 適宜ディレイ
+    vTaskDelay(50 / portTICK_PERIOD_MS);  // 適宜ディレイ
   }
 }
 
